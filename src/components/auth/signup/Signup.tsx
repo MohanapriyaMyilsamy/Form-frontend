@@ -3,6 +3,11 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+interface FormData {
+    email: string;
+    password: string;
+  }
+
 const Signup = () => {
     const [formData, setFormData] = useState({
         username: '',
@@ -17,20 +22,20 @@ const Signup = () => {
 
     const router = useRouter();
 
-    const validateUsername = (username: any) => {
+    const validateUsername = (username: string) => {
         return username.length >= 3;
     };
 
-    const validateEmail = (email: any) => {
+    const validateEmail = (email: string) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(email);
     };
 
-    const validatePassword = (password: any) => {
+    const validatePassword = (password: string) => {
         return password.length >= 6;
     };
 
-    async function signupUser(userData: any) {
+    async function signupUser(userData: FormData) {
         const apiUrl = `http://localhost:5000/signup`;
 
         try {
@@ -55,7 +60,7 @@ const Signup = () => {
         }
     }
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
             ...prevData,
@@ -67,7 +72,7 @@ const Signup = () => {
         }));
     };
 
-    const onSubmit = async (e: any) => {
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         let valid = true;

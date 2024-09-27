@@ -1,130 +1,138 @@
-"use client"
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+"use client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+
+interface FormData {
+  email: string;
+  password: string;
+}
 
 const Login = () => {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-    });
-    const [errors, setErrors] = useState({
-        email: '',
-        password: '',
-    });
+  const [formData, setFormData] = useState<FormData>({
+    email: "",
+    password: "",
+  });
 
-    const router = useRouter();
+  const [errors, setErrors] = useState<FormData>({
+    email: "",
+    password: "",
+  });
 
-    const validateEmail = (email: any) => {
-        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return regex.test(email);
-    };
+  const router = useRouter();
 
-    const validatePassword = (password: any) => {
-        return password.length >= 6;
-    };
+  const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
 
-    async function loginUser(userData: any) {
-        const apiUrl = `http://localhost:5000/login`;
-        console.log('apiUrl', apiUrl);
+  const validatePassword = (password: string) => {
+    return password.length >= 6;
+  };
 
-        if (!apiUrl) {
-            console.error('API URL is not defined');
-            return;
-        }
+  async function loginUser(userData: FormData) {
+    const apiUrl = `http://localhost:5000/login`;
+    console.log("apiUrl", apiUrl);
 
-        try {
-            const response = await fetch(apiUrl, {
-                method: "POST",
-                headers: {
-                    'content-type': "application/json"
-                },
-                body: JSON.stringify(userData)
-            });
-            if (!response.ok) {
-                throw new Error('Fail to submit form');
-            }
-            const responseData = await response.json();
-            console.log('API Response', responseData);
-
-            router.push('/routing/homepage');
-        } catch (error) {
-            console.log("API Error", error);
-        }
+    if (!apiUrl) {
+      console.error("API URL is not defined");
+      return;
     }
 
-    const handleChange = (e: any) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
-        setErrors((prevErrors) => ({
-            ...prevErrors,
-            [name]: '',
-        }));
-    };
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+      if (!response.ok) {
+        throw new Error("Fail to submit form");
+      }
+      const responseData = await response.json();
+      console.log("API Response", responseData);
 
-    const onSubmit = async (event: any) => {
-        event.preventDefault();
+      router.push("/routing/homepage");
+    } catch (error) {
+      console.log("API Error", error);
+    }
+  }
 
-        let valid = true;
-        const newErrors = { email: '', password: '' };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: "",
+    }));
+  };
 
-        if (!formData.email) {
-            newErrors.email = 'Email is required.';
-            valid = false;
-        } else if (!validateEmail(formData.email)) {
-            newErrors.email = 'Please enter a valid email address.';
-            valid = false;
-        }
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-        if (!formData.password) {
-            newErrors.password = 'Password is required.';
-            valid = false;
-        } else if (!validatePassword(formData.password)) {
-            newErrors.password = 'Password must be at least 6 characters long.';
-            valid = false;
-        }
+    let valid = true;
+    const newErrors = { email: "", password: "" };
 
-        setErrors(newErrors);
+    if (!formData.email) {
+      newErrors.email = "Email is required.";
+      valid = false;
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = "Please enter a valid email address.";
+      valid = false;
+    }
 
-        if (valid) {
-            await loginUser(formData);
-        }
-    };
+    if (!formData.password) {
+      newErrors.password = "Password is required.";
+      valid = false;
+    } else if (!validatePassword(formData.password)) {
+      newErrors.password = "Password must be at least 6 characters long.";
+      valid = false;
+    }
 
-    return (
-        <form onSubmit={onSubmit} className='flex items-center justify-center h-screen'>
-            <div className='flex flex-col gap-y-2.5 w-2/6 items-center border-2 border-teal-400 rounded-md'>
-                <h2 className='font-bold not-italic text-2xl text-violet-800 mt-4'>Login Form</h2>
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className='border-2 border-fuchsia-400 rounded-md outline-none w-4/6 h-10 text-black mt-4'
-                />
-                {errors.email && <span style={{ color: 'red' }}>{errors.email}</span>}
+    setErrors(newErrors);
 
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className='border-2 border-fuchsia-400 rounded-md outline-none w-4/6 h-10 text-black mt-4'
-                />
-                {errors.password && <span style={{ color: 'red' }}>{errors.password}</span>}
+    if (valid) {
+      await loginUser(formData);
+    }
+  };
 
-                <button type="submit" className="border border-purple-600 px-10 py-2 mt-4 text-lg bg-purple-500">Login</button>
-                <Link href="/routing/signup" className='text-lg mt-2 text-stone-400 hover:text-fuchsia-500 mb-4'>
-                    Create New Account. <span>Signup</span>
-                </Link>
-            </div>
-        </form>
-    );
+  return (
+    <form onSubmit={onSubmit} className="flex items-center justify-center h-screen">
+      <div className="flex flex-col gap-y-2.5 w-2/6 items-center border-2 border-teal-400 rounded-md">
+        <h2 className="font-bold not-italic text-2xl text-violet-800 mt-4">Login Form</h2>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          className="border-2 border-fuchsia-400 rounded-md outline-none w-4/6 h-10 text-black mt-4"
+        />
+        {errors.email && <span style={{ color: "red" }}>{errors.email}</span>}
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          className="border-2 border-fuchsia-400 rounded-md outline-none w-4/6 h-10 text-black mt-4"
+        />
+        {errors.password && <span style={{ color: "red" }}>{errors.password}</span>}
+
+        <button type="submit" className="border border-purple-600 px-10 py-2 mt-4 text-lg bg-purple-500">
+          Login
+        </button>
+        <Link href="/routing/signup" className="text-lg mt-2 text-stone-400 hover:text-fuchsia-500 mb-4">
+          Create New Account. <span>Signup</span>
+        </Link>
+      </div>
+    </form>
+  );
 };
 
 export default Login;
